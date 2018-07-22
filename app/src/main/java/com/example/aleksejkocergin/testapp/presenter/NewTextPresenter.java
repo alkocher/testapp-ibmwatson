@@ -36,6 +36,7 @@ public class NewTextPresenter extends MvpPresenter<INewText> {
 
     public void getLanguage(String userText) {
 
+        getViewState().hideKeyboard();
         getViewState().showProgressBar();
 
         WatsonService watsonService =
@@ -91,5 +92,9 @@ public class NewTextPresenter extends MvpPresenter<INewText> {
 
     public void hideDialog() {
         getViewState().hideDialog();
+    }
+
+    public void showKeyboard() {
+        getViewState().showKeyboard();
     }
 }
