@@ -9,5 +9,5 @@ public interface WatsonService {
 
     @Headers("Content-Type: text/plain")
     @POST("v3/identify?version=2018-05-01")
-    Observable<LanguageTranslatorModel> getData(@Body String data);
+    Observable<IdentifyModel> getData(@Body String data);
 }
