@@ -17,4 +17,8 @@ public interface INewText extends MvpView {
     void hideProgressBar();
 
     void hideDialog();
+
+    void showKeyboard();
+
+    void hideKeyboard();
 }
