@@ -1,5 +1,6 @@
 package com.example.aleksejkocergin.testapp.view;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -9,6 +10,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -48,6 +51,8 @@ public class FragNewText extends MvpAppCompatFragment implements INewText {
         View view = inflater.inflate(R.layout.fragment_new_text, container, false);
         ButterKnife.bind(this, view);
 
+        presenter.showKeyboard();
+
         writeText.setOnEditorActionListener((textView, i, keyEvent) -> {
             if (!writeText.getText().toString().equals("")) {
                 presenter.getLanguage(writeText.getText().toString());
@@ -56,13 +61,14 @@ public class FragNewText extends MvpAppCompatFragment implements INewText {
             }
             return false;
         });
-            fab.setOnClickListener(view1 -> {
-                if (!writeText.getText().toString().equals("")) {
-                    presenter.getLanguage(writeText.getText().toString());
-                } else {
-                    Toast.makeText(context, "Введите текст", Toast.LENGTH_SHORT).show();
-                }
-            });
+
+        fab.setOnClickListener(view1 -> {
+            if (!writeText.getText().toString().equals("")) {
+                presenter.getLanguage(writeText.getText().toString());
+            } else {
+                Toast.makeText(context, "Введите текст", Toast.LENGTH_SHORT).show();
+            }
+        });
         return view;
     }
 
@@ -89,7 +95,6 @@ public class FragNewText extends MvpAppCompatFragment implements INewText {
 
     @Override
     public void showErrorDialog(String errorMessage) {
-        Log.d(TAG, "showErrorDialog");
         alertDialog = new AlertDialog.Builder(context)
                 .setTitle(R.string.app_name)
                 .setMessage(errorMessage)
@@ -120,6 +125,23 @@ public class FragNewText extends MvpAppCompatFragment implements INewText {
     public void hideDialog() {
         if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.cancel();
+        }
+    }
+
+    @Override
+    public void showKeyboard() {
+        ((InputMethodManager) (context).getSystemService(Context.INPUT_METHOD_SERVICE)).toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+    }
+
+    @Override
+    public void hideKeyboard() {
+        try {
+            ((Activity) context).getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+            if ((((Activity) context).getCurrentFocus() != null) && (((Activity) context).getCurrentFocus().getWindowToken() != null)) {
+                ((InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(((Activity) context).getCurrentFocus().getWindowToken(), 0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
