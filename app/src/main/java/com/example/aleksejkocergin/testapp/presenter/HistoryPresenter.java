@@ -1,7 +1,5 @@
 package com.example.aleksejkocergin.testapp.presenter;
 
-import android.util.Log;
-
 import com.arellomobile.mvp.InjectViewState;
 import com.arellomobile.mvp.MvpPresenter;
 import com.example.aleksejkocergin.testapp.App;
@@ -12,31 +10,32 @@ import com.example.aleksejkocergin.testapp.view.IHistoryView;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 @InjectViewState
 public class HistoryPresenter extends MvpPresenter<IHistoryView> {
 
-    private static final String TAG = HistoryPresenter.class.getSimpleName();
+    private CompositeDisposable mDisposable;
 
     @Override
     protected void onFirstViewAttach() {
         super.onFirstViewAttach();
+        mDisposable = new CompositeDisposable();
         loadData();
     }
 
-    public void loadData() {
+    private void loadData() {
         AppDatabase db = App.getInstance().getDatabase();
 
-        db.textDao().getAll()
+        mDisposable.add(db.textDao().getAll()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(texts -> {
-                    onLoadingSuccess(texts);
-                    for (int i = 0; i < texts.size(); i++)
-                    Log.d(TAG, texts.get(i).getUserText());
-                });
+                .subscribeOn(Schedulers.io())
+                .subscribe(this::onLoadingSuccess));
     }
 
     private void onLoadingSuccess(List<Text> textList) {
         getViewState().setHistoryList(textList);
+        mDisposable.clear();
     }
 }
